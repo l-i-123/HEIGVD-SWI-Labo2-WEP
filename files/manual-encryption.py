@@ -16,27 +16,36 @@ import rc4
 
 #Cle wep AA:AA:AA:AA:AA
 key='\xaa\xaa\xaa\xaa\xaa'
-iv = 0x000000
 message = "super message encrypté"
 
+#lecture de message chiffré - rdpcap retourne toujours un array, même si la capture contient un seul paquet
+arp = rdpcap('arp.cap')[0] 
+
 # rc4 seed est composé de IV+clé
-seed = iv+key 
+seed = arp.iv+key 
 
-# Calcul de l'ICV en effectuant un CRC du message
-icv = binascii.crc32(message)
+# Calcul du nouvel ICV en effectuant un CRC du message
+arp.icv = binascii.crc32(message)
+icv_clear='{:x}'.format(arp.icv).decode("hex")
 
-# Génération de la chaine à XOR avec le keystream
-data_to_encrypt = message + icv
+#texte en clair (message + ICV)
+message_clear=message + icv_clear
+
 
 #Calcul du keystream
-keyStream=rc4.rc4crypt(seed)  
+cryptedText = rc4.rc4crypt(message_clear, seed)  
+
+#récupération del'ICV crypté
+icv_crypted=cryptedText[-4:]
+(icv_numerique,)=struct.unpack('!L', icv_crypted)
 
 #calcul du frame body en faisant keystream xor (data + ICV)
-operator.xor(data_to_encrypt, keyStream)
+text_crypte=cryptedText[:-4] 
 
-#Génération de la trame (MAC Header + IV Header + Frame Body + ICV + CRC)
-#frame = 
+#remplacement du wepData par le message crypté
+arp.wepdata = text_crypte
 
-print 'Text: ' + text_enclair.encode("hex")
-print 'icv:  ' + icv_enclair.encode("hex")
-print 'icv(num): ' + str(icv_numerique)
+#remplacement de l'icv par l'icv crypté
+arp.icv = icv_numerique
+
+wrpcap("arp1.cap", arp)
