@@ -3,12 +3,11 @@
 
 """ Manually decrypt a wep message given the WEP key """
 
-__author__      = "Abraham Rubinstein"
-__copyright__   = "Copyright 2017, HEIG-VD"
+__author__      = "Nuno Miguel Cerca Abrantes Silva, Elie N'djoli"
+__copyright__   = "Copyright 2019, HEIG-VD"
 __license__ 	= "GPL"
 __version__ 	= "1.0"
-__email__ 		= "abraham.rubinstein@heig-vd.ch"
-__status__ 		= "Prototype"
+__status__ 		= "Rendu"
 
 from scapy.all import *
 import binascii
@@ -16,7 +15,7 @@ import rc4
 import os
 
 #Cle wep AA:AA:AA:AA:AA
-key='\xaa\xaa\xaa\xaa\xab'
+key='\xaa\xaa\xaa\xaa\xaa'
 message1 = "Message numero 1, il y a une suite!!"
 message2 = "Message numero 2, il y a une suite!!"
 message3 = "Message numero 3, c'est le dernier!!"
@@ -76,12 +75,20 @@ arp1.icv = icv_numerique1
 arp2.icv = icv_numerique2
 arp3.icv = icv_numerique3
 
+# Activation du bit More fragment de la première trame
 arp1.FCfield.MF = True
+# Activation du bit More fragment de la deuxième trame
 arp2.FCfield.MF = True
+# Incrémentation du compteur de fragment
 arp2.SC += 1
+
+# Désactivation du bit More fragment de la dernière trame
 arp3.FCfield.MF = False
+
+# Incrémentation du compteur de fragment
 arp3.SC += 2
 
+# Concaténation des trames
 arp = []
 arp.append(arp1)
 arp.append(arp2)
