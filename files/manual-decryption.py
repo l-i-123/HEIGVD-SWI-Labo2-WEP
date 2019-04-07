@@ -18,7 +18,7 @@ import rc4
 key='\xaa\xaa\xaa\xaa\xaa'
 
 #lecture de message chiffré - rdpcap retourne toujours un array, même si la capture contient un seul paquet
-arp = rdpcap('arp.cap')[0]  
+arp = rdpcap('arp1.cap')[0]  
 
 # rc4 seed est composé de IV+clé
 seed = arp.iv+key 
@@ -26,7 +26,7 @@ seed = arp.iv+key
 # recuperation de icv dans le message (arp.icv) (en chiffre) -- je passe au format "text". Il y a d'autres manières de faire ceci...
 icv_encrypted='{:x}'.format(arp.icv).decode("hex")
 
-# text chiffré y-compris l'icv
+# text chiffré y-compris l'icv.
 message_encrypted=arp.wepdata+icv_encrypted 
 
 # déchiffrement avec rc4
